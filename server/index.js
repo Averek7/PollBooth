@@ -12,6 +12,8 @@ app.use(express.urlencoded({ extended: false }));
 connectToAtlas();
 
 // routes
+app.use("/api/pauth", require("./routes/Aauth"));
+app.use("/api/vauth", require("./routes/Uauth"));
 
 app.listen(PORT, () => {
   console.log(`>Server Running...${PORT}`);
