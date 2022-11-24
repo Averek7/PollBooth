@@ -6,6 +6,9 @@ const PartySchema = new Schema({
     type: String,
     required: true,
   },
+  established: {
+    type: Date,
+  },
 });
 
 const Party = mongoose.model("parties", PartySchema);

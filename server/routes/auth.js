@@ -2,25 +2,15 @@ const router = require("express").Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../modals/User");
-
+const fetchuser = require("../middleware/fetchuser");
 const JWT_SECRET = "secret_token_user";
 
 router.post("/signup", async (req, res) => {
-  const {
-    username,
-    password,
-    name,
-    age,
-    gender,
-    phone_no,
-    region,
-    aadhar,
-    organisation,
-  } = req.body;
+  const { username, password, aadhar, organisation } = req.body;
   try {
     let check_user = await User.findOne({ username });
-    if (!check_user) {
-      res.status(404).json({ errors: "Please valid username" });
+    if (check_user) {
+      res.status(500).json({ errors: "Sorry ! Username Already Exists" });
     }
 
     // Hash
@@ -31,11 +21,6 @@ router.post("/signup", async (req, res) => {
     let user = await User.create({
       username,
       password: hashPassword,
-      name,
-      age,
-      gender,
-      phone_no,
-      region,
       aadhar,
       organisation,
     });
@@ -48,7 +33,7 @@ router.post("/signup", async (req, res) => {
 
     const authToken = jwt.sign(data, JWT_SECRET);
     res.json({
-      message: `Successfully Merged User ${name}`,
+      message: `Successfully Merged User ${username}`,
     });
   } catch (error) {
     console.error(error.message);
@@ -59,7 +44,7 @@ router.post("/signup", async (req, res) => {
 router.post("/login", async (req, res) => {
   const { username, password } = req.body;
   try {
-    let user = await User.findOne({ username, type: "V" });
+    let user = await User.findOne({ username });
     if (!user) {
       res.status(440).json({ errors: "Please valid username" });
     }
@@ -69,7 +54,7 @@ router.post("/login", async (req, res) => {
     }
 
     const payLoad = {
-      admin: {
+      user: {
         id: user.id,
       },
     };
@@ -78,7 +63,6 @@ router.post("/login", async (req, res) => {
       message: "Successfully Signed In",
       id: user.id,
       name: user.name,
-      region: user.region,
       authToken,
     });
   } catch (error) {
@@ -86,4 +70,24 @@ router.post("/login", async (req, res) => {
   }
 });
 
+router.get("/view_profile", fetchuser, async (req, res) => {
+  try {
+    let profile = await User.findById(req.user.id).select("-password");
+    res.json({ message: "Profile Fetched", profile });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).send("Some error occurred", { message: "Fetching Failed" });
+  }
+});
+
+router.get("/view_user", async (req, res) => {
+  try {
+    const { username } = req.body;
+    let user = await User.findOne({ username }).select("-password");
+    console.log(user);
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).send("Some error occurred", { message: "Fetching Failed" });
+  }
+});
 module.exports = router;

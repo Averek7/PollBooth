@@ -11,10 +11,17 @@ const ElectionSchema = new Schema({
     required: true,
   },
   duration: {
-    type: String, //time
+    type: Number,
     required: true,
   },
-  candidate: {},
+  votes: {
+    groups: [
+      {
+        user: mongoose.Schema.Types.ObjectId,
+        count: Number,
+      },
+    ],
+  },
 });
 
 const Election = mongoose.model("elections", ElectionSchema);
