@@ -5,6 +5,7 @@ const ElectionSchema = new Schema({
   name: {
     type: String,
     required: true,
+    unique: true,
   },
   date: {
     type: String,
@@ -12,16 +13,14 @@ const ElectionSchema = new Schema({
   },
   duration: {
     type: Number,
-    required: true,
   },
-  votes: {
-    groups: [
-      {
-        user: mongoose.Schema.Types.ObjectId,
-        count: Number,
-      },
-    ],
-  },
+  votes: [
+    {
+      id: mongoose.Schema.Types.ObjectId,
+      name: String,
+      count: Number,
+    },
+  ],
 });
 
 const Election = mongoose.model("elections", ElectionSchema);

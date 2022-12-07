@@ -2,6 +2,7 @@ const router = require("express").Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../modals/User");
+const Election = require("../modals/Election");
 const fetchuser = require("../middleware/fetchuser");
 const JWT_SECRET = "secret_token_user";
 
@@ -90,4 +91,28 @@ router.get("/view_user", async (req, res) => {
     res.status(500).send("Some error occurred", { message: "Fetching Failed" });
   }
 });
+
+router.post("/create", fetchuser, async (req, res) => {
+  // Admin abcd1234
+  const { name, date, duration, votes } = req.body;
+  try {
+    const user = await User.findById(req.user.id);
+    console.log(user);
+    if (user.username !== "ADMIN") {
+      return res.json({ message: "Only Admin can add Elections" });
+    } else {
+      var election = await Election.create({
+        name,
+        date,
+        duration,
+        votes,
+      });
+      res.json({ message: "Election Added", election });
+    }
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).send("Some error occurred");
+  }
+});
+
 module.exports = router;

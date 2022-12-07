@@ -16,9 +16,6 @@ const UserSchema = new Schema({
   party: {
     type: String,
   },
-  is_admin: {
-    type: Boolean,
-  },
   election_id: {
     type: Array,
   },

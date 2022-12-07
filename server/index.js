@@ -14,6 +14,7 @@ connectToAtlas();
 
 // routes
 app.use("/api/auth", require("./routes/auth"));
+app.use("/api/election", require("./routes/election"));
 
 app.listen(PORT, () => {
   console.log(`>Server Running...${PORT}`);
