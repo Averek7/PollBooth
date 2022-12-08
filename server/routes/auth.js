@@ -115,4 +115,13 @@ router.post("/create", fetchuser, async (req, res) => {
   }
 });
 
+router.get("/view_all_users", async (req, res) => {
+  try {
+    const users = await User.find();
+    return res.json({ message: "Fetched Succesfully", users });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).send("Some error occurred");
+  }
+});
 module.exports = router;

@@ -2,7 +2,6 @@ const router = require("express").Router();
 const User = require("../modals/User");
 const Election = require("../modals/Election");
 const fetchuser = require("../middleware/fetchuser");
-const { listenerCount } = require("../modals/Election");
 
 router.get("/get_election", async (req, res) => {
   try {
@@ -38,8 +37,12 @@ router.get("/get_candidates", fetchuser, async (req, res) => {
   }
 });
 
-router.post("/:electionID/:candidateID/poll", async (req, res) => {
+router.post("/:electionID/:candidateID/poll", fetchuser, async (req, res) => {
   try {
+    const user = await User.findById(req.user.id);
+    if (user.voted === true) {
+      res.json({ message: "User Already Voted" });
+    }
     const candidate = await User.findById(req.params.candidateID);
     const election = await Election.findById(req.params.electionID);
     if (!election) {
@@ -51,6 +54,11 @@ router.post("/:electionID/:candidateID/poll", async (req, res) => {
         election.save();
       }
     }
+    const updateUser = await User.findByIdAndUpdate(req.user.id, {
+      $set: {
+        voted: true,
+      },
+    });
   } catch (error) {
     console.log(error.message);
     res.status(500).send("Some error occurred");
@@ -69,9 +77,9 @@ router.post(
         });
       }
       const candidate = await User.findById(req.params.candidateID);
-      if (candidate) {
-        return res.json({ message: "Candidate Already Exists" });
-      }
+      // if (candidate.id) {
+      //   return res.json({ message: "Candidate Already Exists" });
+      // }
       const election = await Election.findByIdAndUpdate(
         { _id: req.params.electionID },
         {
